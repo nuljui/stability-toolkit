@@ -7,12 +7,6 @@
 ehthumbs.db
 Thumbs.db
 
-# Git repositories to ignore
-/Aethernet/
-/STBLMail/
-/Winterfell/
-/layer_point_five/
-
 # IDE files
 .idea/
 .vscode/
