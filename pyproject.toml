@@ -6,8 +6,7 @@ authors = ["Stability Protocol <dev@stabilityprotocol.com>"]
 license = "MIT"
 readme = "README.md"
 packages = [
-    { include = "stability_toolkit.py" },
-    { include = "test_stability_toolkit.py" }
+    { include = "stability_toolkit.py" }
 ]
 
 [tool.poetry.dependencies]
