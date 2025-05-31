@@ -1,10 +1,37 @@
 # stability_toolkit.py
 
-from langchain.chat_models import ChatOpenAI
-from langchain.agents import initialize_agent, AgentType
-from langchain.tools import Tool, BaseToolkit
-import requests
+"""Core Stability Toolkit implementation."""
+
 import json
+
+try:
+    import requests
+except Exception:  # pragma: no cover - optional dependency
+    class _RequestsFallback:
+        def post(self, *_, **__):  # pragma: no cover - fallback implementation
+            raise RuntimeError("requests library is required")
+
+    requests = _RequestsFallback()  # type: ignore
+
+try:  # Optional import so tests don't require langchain
+    from langchain.tools import Tool, BaseToolkit
+    from langchain.chat_models import ChatOpenAI
+    from langchain.agents import initialize_agent, AgentType
+    _LANGCHAIN_AVAILABLE = True
+except Exception:  # pragma: no cover - optional dependency
+    class Tool:
+        def __init__(self, name: str = "", func=None, description: str = ""):
+            self.name = name
+            self.func = func
+            self.description = description
+
+    class _BaseToolkitFallback:
+        def get_tools(self):
+            return []
+
+    BaseToolkit = _BaseToolkitFallback
+    ChatOpenAI = initialize_agent = AgentType = None  # type: ignore
+    _LANGCHAIN_AVAILABLE = False
 
 # ---- Tool 1: Write ZKTv1 message ----
 def post_zkt_v1(arguments: str, api_key: str = "try-it-out") -> str:
@@ -103,12 +130,19 @@ class StabilityToolkit(BaseToolkit):
         ]
 
 # ---- Agent + Example usage ----
-if __name__ == "__main__":
+if __name__ == "__main__" and _LANGCHAIN_AVAILABLE:
     llm = ChatOpenAI(model="gpt-4o", temperature=0)
     toolkit = StabilityToolkit()
-    agent = initialize_agent(toolkit.get_tools(), llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION, verbose=True)
+    agent = initialize_agent(
+        toolkit.get_tools(),
+        llm,
+        agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+        verbose=True,
+    )
 
-    prompt = "Deploy a smart contract that stores a greeting and value, then return the contract address."
+    prompt = (
+        "Deploy a smart contract that stores a greeting and value, then return the contract address."
+    )
     result = agent.run(prompt)
     print("\nAgent Result:")
     print(result)
