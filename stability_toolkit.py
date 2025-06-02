@@ -62,7 +62,7 @@ def call_contract_read(to: str, abi: list, method: str, arguments: list, id=1, a
         return f"Error: {str(e)}"
 
 # ---- Tool 3: Smart contract write ----
-def call_contract_write(to: str, abi: list, method: str, arguments: list, id=1, wait=False, api_key: str = "try-it-out") -> str:
+def call_contract_write(to: str, abi: list, method: str, arguments: list, wait: bool = True,  id=1, api_key: str = "try-it-out") -> str:
     url = f"https://rpc.stabilityprotocol.com/zkt/{api_key}"
     headers = {"Content-Type": "application/json"}
     payload = {
@@ -80,12 +80,13 @@ def call_contract_write(to: str, abi: list, method: str, arguments: list, id=1, 
         return f"Error: {str(e)}"
 
 # ---- Tool 4: Deploy contract ----
-def deploy_contract(code: str, arguments: list = [], id=1, api_key: str = "try-it-out") -> str:
+def deploy_contract(code: str, arguments: list = [], wait: bool = False, id=1, api_key: str = "try-it-out") -> str:
     url = f"https://rpc.stabilityprotocol.com/zkt/{api_key}"
     headers = {"Content-Type": "application/json"}
     payload = {
         "code": code,
         "arguments": arguments,
+        "wait": wait,
         "id": id
     }
     try:
@@ -97,25 +98,25 @@ def deploy_contract(code: str, arguments: list = [], id=1, api_key: str = "try-i
 # ---- LangChain tool wrappers ----
 write_tool = Tool(
     name="StabilityWriteTool",
-    func=lambda args: post_zkt_v1(args),
+    func=lambda arguments: post_zkt_v1(arguments),
     description="Send a plain text message to the Stability blockchain using ZKT v1."
 )
 
 read_tool = Tool(
     name="StabilityReadTool",
-    func=lambda args: call_contract_read(**json.loads(args)),
+    func=lambda arguments: call_contract_read(**json.loads(arguments)),
     description="Read data from a Stability smart contract using ZKT v2 read request. JSON input must include: to, abi, method, arguments."
 )
 
 write_contract_tool = Tool(
     name="StabilityWriteContractTool",
-    func=lambda args: call_contract_write(**json.loads(args)),
+    func=lambda arguments: call_contract_write(**json.loads(arguments)),
     description="Write data to a Stability smart contract using ZKT v2 write request. JSON input must include: to, abi, method, arguments, id, wait."
 )
 
 deploy_tool = Tool(
     name="StabilityDeployTool",
-    func=lambda args: deploy_contract(**json.loads(args)),
+    func=lambda arguments: deploy_contract(**json.loads(arguments)),
     description="Deploy a Solidity smart contract to the Stability blockchain. JSON input must include: code, arguments."
 )
 
