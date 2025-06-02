@@ -2,7 +2,20 @@
 
 """Core Stability Toolkit implementation."""
 
+from typing import Any, List
 import json
+
+DEFAULT_API_KEY = "try-it-out"
+API_URL_TEMPLATE = "https://rpc.stabilityprotocol.com/zkt/{}"
+HEADERS = {"Content-Type": "application/json"}
+
+__all__ = [
+    "post_zkt_v1",
+    "call_contract_read",
+    "call_contract_write",
+    "deploy_contract",
+    "StabilityToolkit",
+]
 
 try:
     import requests
@@ -12,6 +25,16 @@ except Exception:  # pragma: no cover - optional dependency
             raise RuntimeError("requests library is required")
 
     requests = _RequestsFallback()  # type: ignore
+
+
+def _post_request(payload: dict, api_key: str = DEFAULT_API_KEY) -> str:
+    """Send a POST request to the Stability API and return the response text."""
+    url = API_URL_TEMPLATE.format(api_key)
+    try:
+        response = requests.post(url, headers=HEADERS, json=payload)
+        return response.text
+    except Exception as e:  # pragma: no cover - network failures
+        return f"Error: {e}"
 
 try:  # Optional import so tests don't require langchain
     from langchain.tools import Tool, BaseToolkit
@@ -34,66 +57,67 @@ except Exception:  # pragma: no cover - optional dependency
     _LANGCHAIN_AVAILABLE = False
 
 # ---- Tool 1: Write ZKTv1 message ----
-def post_zkt_v1(arguments: str, api_key: str = "try-it-out") -> str:
-    url = f"https://rpc.stabilityprotocol.com/zkt/{api_key}"
-    headers = {"Content-Type": "application/json"}
+def post_zkt_v1(arguments: str, api_key: str = DEFAULT_API_KEY) -> str:
+    """Send a simple string message to the blockchain."""
     payload = {"arguments": arguments}
-    try:
-        response = requests.post(url, headers=headers, json=payload)
-        return response.text
-    except Exception as e:
-        return f"Error: {str(e)}"
+    return _post_request(payload, api_key)
 
 # ---- Tool 2: Smart contract read ----
-def call_contract_read(to: str, abi: list, method: str, arguments: list, id=1, api_key: str = "try-it-out") -> str:
-    url = f"https://rpc.stabilityprotocol.com/zkt/{api_key}"
-    headers = {"Content-Type": "application/json"}
-    payload = {
-        "to": to,
-        "abi": abi,
-        "method": method,
-        "arguments": arguments,
-        "id": id
-    }
-    try:
-        response = requests.post(url, headers=headers, json=payload)
-        return response.text
-    except Exception as e:
-        return f"Error: {str(e)}"
-
-# ---- Tool 3: Smart contract write ----
-def call_contract_write(to: str, abi: list, method: str, arguments: list, wait: bool = True,  id=1, api_key: str = "try-it-out") -> str:
-    url = f"https://rpc.stabilityprotocol.com/zkt/{api_key}"
-    headers = {"Content-Type": "application/json"}
+def call_contract_read(
+    to: str,
+    abi: List[str],
+    method: str,
+    arguments: List[Any],
+    id: int = 1,
+    api_key: str = DEFAULT_API_KEY,
+) -> str:
+    """Execute a read-only smart contract call."""
     payload = {
         "to": to,
         "abi": abi,
         "method": method,
         "arguments": arguments,
         "id": id,
-        "wait": wait
     }
-    try:
-        response = requests.post(url, headers=headers, json=payload)
-        return response.text
-    except Exception as e:
-        return f"Error: {str(e)}"
+    return _post_request(payload, api_key)
+
+# ---- Tool 3: Smart contract write ----
+def call_contract_write(
+    to: str,
+    abi: List[str],
+    method: str,
+    arguments: List[Any],
+    wait: bool = True,
+    id: int = 1,
+    api_key: str = DEFAULT_API_KEY,
+) -> str:
+    """Execute a state-changing smart contract call."""
+    payload = {
+        "to": to,
+        "abi": abi,
+        "method": method,
+        "arguments": arguments,
+        "id": id,
+        "wait": wait,
+    }
+    return _post_request(payload, api_key)
 
 # ---- Tool 4: Deploy contract ----
-def deploy_contract(code: str, arguments: list = [], wait: bool = False, id=1, api_key: str = "try-it-out") -> str:
-    url = f"https://rpc.stabilityprotocol.com/zkt/{api_key}"
-    headers = {"Content-Type": "application/json"}
+def deploy_contract(
+    code: str,
+    arguments: List[Any] | None = None,
+    wait: bool = False,
+    id: int = 1,
+    api_key: str = DEFAULT_API_KEY,
+) -> str:
+    """Deploy a Solidity contract to the blockchain."""
     payload = {
         "code": code,
-        "arguments": arguments,
+        "arguments": arguments or [],
         "wait": wait,
-        "id": id
+        "id": id,
     }
-    try:
-        response = requests.post(url, headers=headers, json=payload)
-        return response.text
-    except Exception as e:
-        return f"Error: {str(e)}"
+    return _post_request(payload, api_key)
 
 # ---- LangChain tool wrappers ----
 write_tool = Tool(
