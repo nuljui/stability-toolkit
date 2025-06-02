@@ -1,8 +1,20 @@
 import unittest
 import json
 import time
-from stability_toolkit import post_zkt_v1, call_contract_read, call_contract_write, deploy_contract
 
+try:
+    import requests  # noqa: F401
+except Exception:
+    requests = None
+
+from stability_toolkit import (
+    post_zkt_v1,
+    call_contract_read,
+    call_contract_write,
+    deploy_contract,
+)
+
+@unittest.skipIf(requests is None, "requests library is required for live tests")
 class TestStabilityToolkitLive(unittest.TestCase):
     contract_address = None  # Class variable to store contract address
 
