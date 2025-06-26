@@ -75,4 +75,4 @@ If you're adding a new tool:
 
 ## 📬 Questions?
 
-Open an issue or email us at [dev@stabilityprotocol.com](mailto:dev@stabilityprotocol.com)
+Open an issue or email us at [contact@stabilityprotocol.com](mailto:contact@stabilityprotocol.com)

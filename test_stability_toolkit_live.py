@@ -21,45 +21,19 @@ class TestStabilityToolkitLive(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Set up test environment before any tests run"""
-        print("\n" + "="*50)
-        print("Starting Live Blockchain Tests")
-        print("="*50)
-        
         # Use the try-it-out API key
         cls.api_key = "try-it-out"
-        print(f"Using API key: {cls.api_key}")
-
-    def setUp(self):
-        """Set up before each test"""
-        print("\n" + "-"*50)
-        print("Starting new test...")
-        print("-"*50)
-
-    def tearDown(self):
-        """Clean up after each test"""
-        print("\n" + "-"*50)
-        print("Test completed")
-        print("-"*50 + "\n")
 
     def test_01_post_zkt_v1_live(self):
         """Test sending a real message to the blockchain"""
-        print("\nTest: post_zkt_v1 (Live)")
         test_message = "Test message from live test"
-        print(f"Input: {test_message}")
         
-        try:
-            result = post_zkt_v1(test_message, api_key=self.api_key)
-            print(f"Response: {result}")
-            
-            # Parse the response
-            response_data = json.loads(result)
-            self.assertIn("success", response_data)
-            self.assertIn("hash", response_data)
-            print(f"Transaction Hash: {response_data['hash']}")
-            print("Test Status: PASSED")
-        except Exception as e:
-            print(f"Error: {str(e)}")
-            raise
+        result = post_zkt_v1(test_message, api_key=self.api_key)
+        
+        # Parse the response
+        response_data = json.loads(result)
+        self.assertIn("success", response_data)
+        self.assertIn("hash", response_data)
 
     def test_02_deploy_contract_live(self):
         """Test deploying a real contract to the blockchain"""
