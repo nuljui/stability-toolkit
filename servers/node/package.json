@@ -1,0 +1,54 @@
+{
+  "name": "stbl-mcp",
+  "version": "0.3.8",
+  "description": "Stability MCP Server - Blockchain tools for AI agents with zero gas fees",
+  "main": "index.js",
+  "bin": {
+    "stbl-mcp": "index.js"
+  },
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node comprehensive_test.js"
+  },
+  "files": [
+    "index.js",
+    "README.md",
+    "SETUP.md"
+  ],
+  "keywords": [
+    "mcp",
+    "blockchain",
+    "stability",
+    "ai",
+    "langchain",
+    "zero-gas",
+    "smart-contracts",
+    "model-context-protocol"
+  ],
+  "author": "STBL-MCP Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/stbl-mcp.git",
+    "directory": "servers/node"
+  },
+  "homepage": "https://github.com/yourusername/stbl-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/yourusername/stbl-mcp/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.15.1",
+    "dotenv": "^16.4.5",
+    "ws": "^8.15.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.18.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  }
+}

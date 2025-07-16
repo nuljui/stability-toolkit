@@ -60,7 +60,7 @@ setup(
     },
     project_urls={
         "Bug Tracker": "https://github.com/nuljui/stability-toolkit/issues",
-        "Support": "mailto:contact@stabilityprotocol.com",
+        "Support": "https://github.com/nuljui/stability-toolkit/issues",
         "Portal": "https://portal.stabilityprotocol.com/",
         "Documentation": "https://github.com/nuljui/stability-toolkit#readme",
     },

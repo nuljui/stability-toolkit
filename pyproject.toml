@@ -38,10 +38,51 @@ mypy = "^1.0.0"
 langchain-openai = "^0.1.0"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
 
-[tool.poetry.urls]
-"Bug Tracker" = "https://github.com/nuljui/stability-toolkit/issues"
-"Support" = "mailto:contact@stabilityprotocol.com"
-"Portal" = "https://portal.stabilityprotocol.com/"
+[project]
+name = "stbl-mcp"
+version = "0.1.0"
+description = "Stability Model Context Protocol (MCP) - AI agents + blockchain with zero gas fees"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "STBL-MCP Contributors"}
+]
+keywords = ["blockchain", "ai", "mcp", "stability", "langchain"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: System :: Distributed Computing",
+]
+dependencies = [
+    "mcp>=1.11.0",
+    "requests>=2.31.0",
+    "langchain-core>=0.1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/nuljui/stbl-mcp"
+Repository = "https://github.com/nuljui/stbl-mcp.git"
+Documentation = "https://github.com/nuljui/stbl-mcp#readme"
+"Bug Tracker" = "https://github.com/nuljui/stbl-mcp/issues"
+
+[project.scripts]
+stbl-mcp = "stability_mcp:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["stability_*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.md", "*.txt", "*.json"]

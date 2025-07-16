@@ -1,200 +1,284 @@
-# Stability Toolkit for LangChain
+# STBL-MCP: Stability Model Context Protocol
 
-A production-ready toolkit that enables AI agents to interact with the Stability blockchain without gas fees or cryptocurrency requirements.
-
-## ✨ Production-Ready Features (Latest Update)
-
-- **🔑 Environment Variable Support**: Set `STABILITY_API_KEY` for production deployments
-- **🛠️ Flexible Configuration**: Initialize with custom API keys or use environment variables
-- **🔒 Security Enhancements**: API key sanitization in logs and error messages
-- **⚠️ Production Warnings**: Helpful guidance for production vs. development usage
-- **📚 Comprehensive Documentation**: Clear examples and best practices
+A complete Model Context Protocol (MCP) implementation for Stability blockchain, enabling AI agents to interact with Stability Protocol without gas fees. Features comprehensive blockchain tools and real-time event monitoring.
 
 ## 🚀 Quick Start
+
+### Prerequisites
+- Python 3.8+ or Node.js 18+
+- Claude Desktop or other MCP-compatible client
+- Optional: Free API key from [portal.stabilityprotocol.com](https://portal.stabilityprotocol.com)
 
 ### Installation
 
 ```bash
-pip install langchain-core requests
+git clone https://github.com/yourusername/stbl-mcp.git
+cd stbl-mcp
+
+# Python server
+pip install -r requirements.txt
+
+# OR Node.js server (TypeScript)
+cd servers/node
+npm install
+npm run build
 ```
 
-### Basic Usage
+### Usage with Claude Desktop
 
-```python
-from stability_toolkit import StabilityToolkit
+1. **Set API Key** (optional):
+   ```bash
+   export STABILITY_API_KEY="your-api-key-here"
+   ```
 
-# Option 1: Using environment variable (recommended for production)
-export STABILITY_API_KEY="your-api-key"
-toolkit = StabilityToolkit()
+2. **Configure Claude Desktop** by adding to your config file:
+   ```json
+   {
+     "mcpServers": {
+       "stability": {
+         "command": "python3",
+         "args": ["/path/to/stbl-mcp/stability_mcp.py"]
+       }
+     }
+   }
+   ```
 
-# Option 2: Direct API key (for development/testing)
-toolkit = StabilityToolkit(api_key="your-api-key")
-
-# Get all tools
-tools = toolkit.get_tools()
-```
-
-## 🔑 API Key Setup
-
-### Getting Your FREE API Key
-
-1. **Visit the Stability Protocol Portal**: [https://portal.stabilityprotocol.com/](https://portal.stabilityprotocol.com/)
-2. **Sign up for a free account**
-3. **Generate your API key(s)**
-
-### Free Tier Limits
-- **🔢 API Keys**: Up to 3 keys per account
-- **✍️ Write Transactions**: 1,000 per month
-- **📖 Read Operations**: 200 per minute
-- **💰 Cost**: Completely FREE
-
-### Setting Up Your API Key
-
-#### Option 1: Environment Variable (Recommended)
-```bash
-# Add to your shell profile (.bashrc, .zshrc, etc.)
-export STABILITY_API_KEY="your-api-key-from-portal"
-
-# Or set for current session
-export STABILITY_API_KEY="your-api-key-from-portal"
-```
-
-#### Option 2: Direct Configuration
-```python
-from stability_toolkit import StabilityToolkit
-
-toolkit = StabilityToolkit(api_key="your-api-key-from-portal")
-```
-
-#### Option 3: Development/Testing
-```python
-# Uses "try-it-out" key with limited functionality
-toolkit = StabilityToolkit()
-```
+3. **Start using** the 10 blockchain and event tools in Claude Desktop!
 
 ## 🛠️ Available Tools
 
-1. **StabilityWriteTool** - Send messages to blockchain
-2. **StabilityReadTool** - Read from smart contracts  
-3. **StabilityWriteContractTool** - Write to smart contracts
-4. **StabilityDeployTool** - Deploy Solidity contracts
+### Blockchain Tools (4)
 
-## 🔧 API Key Configuration
+#### 1. `stbl_write` (post_message)
+Post plain text messages to the Stability blockchain
+```json
+{
+  "message": "Hello from AI agent!"
+}
+```
 
-### Environment Variable (Recommended)
+#### 2. `stbl_read` (read_contract)
+Read data from smart contracts
+```json
+{
+  "to": "0x1234...",
+  "method": "balanceOf",
+  "arguments": ["0x5678..."],
+  "abi": "[...]"
+}
+```
+
+#### 3. `stbl_write_contract` (write_contract)
+Execute state-changing contract calls
+```json
+{
+  "to": "0x1234...",
+  "method": "transfer",
+  "arguments": ["0x5678...", 1000],
+  "abi": "[...]",
+  "wait": true
+}
+```
+
+#### 4. `stbl_deploy` (deploy_contract)
+Deploy new smart contracts
+```json
+{
+  "code": "contract MyContract { ... }",
+  "arguments": ["arg1", "arg2"],
+  "wait": true
+}
+```
+
+### Event Tools (6) ✨ NEW
+
+#### 5. `event_subscribe`
+Subscribe to real-time blockchain events
+```json
+{
+  "type": "Transfer",
+  "contract": "0x1234...",
+  "autoConnect": true
+}
+```
+
+#### 6. `event_status`
+Get event system status and health monitoring
+```json
+{}
+```
+
+#### 7. `event_query`
+Query historical events with advanced filtering
+```json
+{
+  "limit": 50,
+  "offset": 0,
+  "startTime": 1640995200000,
+  "sortBy": "timestamp",
+  "sortOrder": "desc"
+}
+```
+
+#### 8. `event_filter`
+Create complex event filters with multiple conditions
+```json
+{
+  "conditions": [
+    {"field": "event", "operator": "equals", "value": "Transfer"},
+    {"field": "value", "operator": "gt", "value": 1000000}
+  ],
+  "logicalOperator": "AND"
+}
+```
+
+#### 9. `event_webhook`
+Configure webhooks for external event notifications
+```json
+{
+  "url": "https://api.example.com/webhook",
+  "events": ["Transfer", "Approval"],
+  "secret": "webhook-secret",
+  "enabled": true
+}
+```
+
+#### 10. `event_unsubscribe`
+Clean up event subscriptions
+```json
+{
+  "subscriptionId": "sub_1234567890"
+}
+```
+
+## 📁 Project Structure
+
+```
+stbl-mcp/
+├── stability_mcp.py           # Python MCP server
+├── stability_toolkit.py       # Core Stability API integration
+├── servers/                   # Multi-language MCP servers
+│   └── node/                  # TypeScript/Node.js implementation
+│       ├── src/
+│       │   ├── index.ts       # Main MCP server
+│       │   ├── tools.ts       # 10 MCP tools implementation
+│       │   ├── events.ts      # Event subscription system
+│       │   └── api.ts         # Stability API integration
+│       ├── dist/              # Compiled JavaScript
+│       └── package.json       # Node.js dependencies
+├── tasks/                     # 28 development tasks breakdown
+│   ├── 01-2-setup-nodejs-mcp-server.md ✅
+│   ├── 02-3-migrate-python-tools-to-mcp.md ✅
+│   ├── 05-4-build-event-subscription-system.md ✅
+│   ├── 06-3-create-event-mcp-tools.md ✅
+│   ├── 07-3-test-event-system.md ✅
+│   └── ...
+├── docs/                      # Original LangChain integration docs
+├── test_*.py                  # Test files
+├── requirements.txt           # Python dependencies
+├── CLAUDE_DESKTOP_SETUP.md   # Detailed setup guide
+└── README.md                 # This file
+```
+
+## 🎯 Features
+
+- **Zero Gas Fees**: Use Stability's ZKT (Zero Knowledge Transaction) API
+- **10 Comprehensive Tools**: Complete blockchain and event management
+- **Real-time Events**: WebSocket-based event subscription system
+- **Advanced Filtering**: Complex event queries with pagination and sorting
+- **Webhook Integration**: External notifications with security
+- **Dual Implementation**: Python and TypeScript/Node.js servers
+- **Free API Key**: Get started immediately with try-it-out mode
+- **Production Ready**: Supports production API keys
+- **AI-First**: Designed specifically for AI agent integration
+- **LangChain Compatible**: Built on existing LangChain toolkit
+
+## 📋 Development Roadmap
+
+This project includes **28 detailed development tasks** organized into 7 phases:
+
+### Current Status (10/28 completed - 36%):
+- ✅ **Phase 1**: Core MCP tools implementation (4 tasks)
+- ✅ **Phase 2**: Event subscription system (3 tasks) ✨ NEW
+- ⏳ **Phase 3**: Smart contract templates (5 tasks)
+- ⏳ **Phase 4**: Token operations (3 tasks)
+- ⏳ **Phase 5**: Testing & documentation (5 tasks)
+- ⏳ **Phase 6**: Advanced AI features (3 tasks)
+- ✅ **Phase 7**: Migration & compatibility (3 tasks)
+
+### Recently Completed:
+- ✅ **Task 5**: Build event subscription system with WebSocket foundation
+- ✅ **Task 6**: Create 6 comprehensive event MCP tools
+- ✅ **Task 7**: Test complete event system functionality
+
+See the `tasks/` directory for detailed breakdown of each development task.
+
+## 🔧 Configuration
+
+### API Keys
+- **Free**: Uses "try-it-out" by default (limited functionality)
+- **Production**: Set `STABILITY_API_KEY` environment variable
+- **Get Key**: Visit [portal.stabilityprotocol.com](https://portal.stabilityprotocol.com)
+
+### MCP Clients
+- **Claude Desktop**: See `CLAUDE_DESKTOP_SETUP.md`
+- **Other MCP clients**: Both servers use stdio protocol
+
+### Server Options
+- **Python**: `python stability_mcp.py` (4 blockchain tools)
+- **Node.js**: `node servers/node/dist/index.js` (10 tools with events)
+
+## 🧪 Testing
+
+Run the test suite:
 ```bash
-export STABILITY_API_KEY="your-api-key"
+# Python tests
+python -m pytest test_stability_toolkit_units.py
+python -m pytest test_stability_toolkit_langchain.py
+python -m pytest test_stability_toolkit_live.py
+
+# Node.js tests
+cd servers/node
+npm test
+node task7_test.js  # Event system validation
 ```
 
-### Programmatic Configuration
-```python
-toolkit = StabilityToolkit(api_key="your-api-key")
-```
+## 📚 Documentation
 
-### Development/Testing
-```python
-# Uses "try-it-out" key with limited functionality
-toolkit = StabilityToolkit()
-```
+- **Setup Guide**: `CLAUDE_DESKTOP_SETUP.md`
+- **Task Breakdown**: `tasks/README.md`
+- **Event System**: `tasks/05-4-build-event-subscription-system.md`
+- **Original Integration**: `docs/docs/integrations/tools/stability.ipynb`
+- **Contributing**: `CONTRIBUTING.md`
 
-## 🔒 Security Features
+## 🤝 Contributing
 
-- **API Key Sanitization**: Keys are automatically sanitized in logs and error messages
-- **Environment Variable Support**: Secure configuration without hardcoding keys
-- **Production Warnings**: Clear guidance on API key limitations and best practices
+We welcome contributions! Please see `CONTRIBUTING.md` for guidelines and the `tasks/` directory for specific development opportunities.
 
-## 📞 Support & Contact
+**High Priority Areas:**
+- Phase 3: Smart contract templates
+- Phase 4: Token operations (ERC-20, ERC-721)
+- Phase 5: Testing and documentation
 
-- **Support Email**: [contact@stabilityprotocol.com](mailto:contact@stabilityprotocol.com)
-- **API Portal**: [https://portal.stabilityprotocol.com/](https://portal.stabilityprotocol.com/)
-- **Documentation**: Comprehensive examples and usage patterns included
+## 📄 License
 
-**StabilityToolkit** is a LangChain-compatible toolkit that enables AI agents to interact directly with the [Stability Blockchain](https://stabilityprotocol.com) through Zero Gas Transaction (ZKT) API endpoints. It includes tools for submitting simple messages, interacting with smart contracts (read/write), and deploying contracts — all without requiring gas fees or cryptocurrency.
+This project is licensed under the MIT License - see the `LICENSE` file for details.
 
----
+## 🔗 Related Projects
 
-## 🚀 Features
+- [Stability Protocol](https://portal.stabilityprotocol.com/) - Zero gas blockchain platform
+- [Model Context Protocol](https://github.com/modelcontextprotocol/specification) - AI agent integration standard
+- [LangChain](https://github.com/langchain-ai/langchain) - AI application framework
 
-* ✅ Write plain messages to Stability (ZKT)
-* ✅ Read smart contract data (ZKT Simple - view)
-* ✅ Call smart contract functions (ZKT Simple - write)
-* ✅ Deploy new smart contracts (ZKT Contract)
-* ✅ Works with public and authenticated endpoints
+## 🎉 Get Started
 
----
-
-## 🛠 Tools Overview
-
-| Tool Name                    | Description                                      |
-| ---------------------------- | ------------------------------------------------ |
-| `StabilityWriteTool`         | POSTs a string message to the blockchain         |
-| `StabilityReadTool`          | Reads data from smart contracts via ABI & method |
-| `StabilityWriteContractTool` | Calls smart contract write methods               |
-| `StabilityDeployTool`        | Deploys Solidity smart contracts to Stability    |
+1. **Clone this repo**
+2. **Install dependencies**: `pip install -r requirements.txt` or `npm install`
+3. **Follow**: `CLAUDE_DESKTOP_SETUP.md`
+4. **Start building** AI agents with comprehensive blockchain capabilities!
 
 ---
 
-## 🧱 Installation
+**Made with ❤️ for the AI + Blockchain community** 
 
-```bash
-pip install langchain openai requests
-```
-
----
-
-## 🧪 Example Usage
-
-```python
-from langchain.chat_models import ChatOpenAI
-from langchain.agents import initialize_agent
-from stability_toolkit import StabilityToolkit
-
-llm = ChatOpenAI(model="gpt-4o", temperature=0)
-toolkit = StabilityToolkit()
-agent = initialize_agent(toolkit.get_tools(), llm, agent_type="zero-shot-react-description")
-
-response = agent.run("Deploy a contract that stores a greeting and a value")
-print(response)
-```
-
----
-
-## 🧪 Running Tests
-
-```bash
-# Run live blockchain tests
-python -m unittest test_stability_toolkit_live.py
-
-# Run LangChain integration tests  
-python -m unittest test_stability_toolkit_langchain.py
-```
-
----
-
-## 🔐 API Keys
-
-* Public endpoint: `https://rpc.stabilityprotocol.com/zkt/try-it-out`
-* Get your free personal key at [portal.stabilityprotocol.com](https://portal.stabilityprotocol.com)
-* Replace `try-it-out` in URLs with your API key to sign with your own identity.
-
----
-
-## 📄 API Docs
-
-For full OpenAPI documentation, see:
-[https://stabilityprotocol.github.io/stability-api-docs](https://stabilityprotocol.github.io/stability-api-docs)
-
----
-
-## 💡 Contribution Ideas
-
-* Add retry logic or exponential backoff
-* Support transaction result polling with `wait=True`
-* Extend Toolkit with `StatusTool` or `VerifyTool`
-* Add automatic schema validation with `pydantic`
-
----
-
-## 📬 Contact
-
-For questions, feature requests, or contributions, reach out via [stabilityprotocol.com](https://stabilityprotocol.com)
+*Now featuring complete event system with real-time monitoring! 🚀*

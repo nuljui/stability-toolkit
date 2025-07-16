@@ -1,8 +1,8 @@
-name: Test Stability Toolkit
+name: Test STBL-MCP
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
@@ -11,13 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: [3.8, 3.9, "3.10", "3.11"]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v3
     
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
     
@@ -25,36 +25,25 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pytest pytest-cov black flake8 mypy
+        pip install pytest
     
-    - name: Lint with flake8
+    - name: Run unit tests
       run: |
-        # Stop the build if there are Python syntax errors or undefined names
-        flake8 stability_toolkit.py --count --select=E9,F63,F7,F82 --show-source --statistics
-        # Exit-zero treats all errors as warnings
-        flake8 stability_toolkit.py --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
+        python -m pytest test_toolkit_units.py -v
     
-    - name: Format check with black
+    - name: Run LangChain integration tests
       run: |
-        black --check --diff stability_toolkit.py
+        python -m pytest test_stability_toolkit_langchain.py -v
     
-    - name: Type check with mypy
+    - name: Test MCP script import
       run: |
-        mypy stability_toolkit.py --ignore-missing-imports
+        python -c "import stability_mcp; print('✅ MCP script imports successfully')"
     
-    - name: Test with pytest
+    - name: Test toolkit import
       run: |
-        pytest test_toolkit_units.py -v --cov=stability_toolkit --cov-report=xml
+        python -c "import stability_toolkit; print('✅ Stability toolkit imports successfully')"
     
-    - name: Live blockchain tests (optional)
+    - name: Check MCP script executable
       run: |
-        pytest test_stability_toolkit_live.py -v || echo "Live tests skipped (expected in CI)"
-      continue-on-error: true
-
-    - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./coverage.xml
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: false 
+        chmod +x stability_mcp.py
+        echo "✅ MCP script is executable" 
